@@ -1,0 +1,5 @@
+type: object
+properties:
+  refreshToken: string
+required:
+  - refreshToken

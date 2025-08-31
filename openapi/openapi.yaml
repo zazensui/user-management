@@ -1,0 +1,619 @@
+openapi: '3.0.3'
+info:
+  title: User Management
+  version: '1.0'
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /users/register:
+    post:
+      summary: Register a new user
+      operationId: registerUser
+      tags: ["users"]
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "./components/schemas/requests/RegisterUserRequest.yaml"
+        required: true
+      responses:
+        "201":
+          description: Registered the new user successfully
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/UserInfoResponse.yaml"
+        "400":
+          description: Invalid username/password/email
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "409":
+          description: Username/email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+
+  /users/login:
+    post:
+      summary: Authenticate user and issue tokens
+      operationId: authenticateUser
+      tags: ["users"]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas/requests/LoginUserRequest.yaml"
+        required: true
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/LoginUserResponse.yaml"
+        "400":
+          description: Malformed request or missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "401":
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "403":
+          description: Account not verified
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+
+  /users/refresh_token:
+    post:
+      summary: Issue new access token using refresh token
+      operationId: refreshToken
+      tags: ["users"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          description: "Bearer {refresh_token}"
+      responses:
+        "200":
+          description: Token successfully refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/RefreshTokenResponse.yaml"
+        "401":
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+
+  /users/logout:
+    post:
+      summary: Invalidate the refresh token
+      operationId: logoutUser
+      tags: ["users"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          description: "Bearer {refresh_token}"
+          required: true
+      responses:
+        "204":
+          description: Logged out successfully, no content
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+
+  /users/me:
+    get:
+      summary: Get current user profile
+      operationId: getUser
+      tags: ["users"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          description: "Bearer {acess_token}"
+      responses:
+        "200":
+          description: User info successfully fetched
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/UserInfoResponse.yaml"
+        "401":
+          description: Missing or invalid access token
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "404":
+          description: User record not found
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"        
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+
+  # The server generates a token, stores it in the db then sends an email url with the token already encoded to it.
+  /users/request_password_reset:
+    post:
+      summary: Initiate password request
+      operationId: requestPasswordReset
+      tags: ["users"]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Password reset email sent successfully. The token expires in 1 hour.
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/SuccessResponse.yaml"
+        "400":
+          description: Invalid email format
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "404":
+          description: Email not found
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+  
+  # Upon clicking the password reset link, the front-end should extract the token from the URL then
+  # send it along with the email and the new password via the requestBody
+  /users/reset_password:
+    post:
+      summary: Complete password reset
+      operationId: resetPassword
+      tags: ["users"]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas/requests/ResetPassword.yaml"
+      responses:
+        "200":
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/UserInfoResponse.yaml"
+        "400":
+          description: Invalid input or token
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "401":
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+
+  /users/change_password:
+    post:
+      summary: Change user password
+      operationId: changePassword
+      tags: ["users"]
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas/requests/ChangePassword.yaml"
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/SuccessResponse.yaml"
+        "400":
+          description: Invalid input (e.g., weak password)
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "401":
+          description: Invalid current password
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "403":
+          description: Forbidden (not the user)
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+  
+  /users/verify_email:
+    get:
+      summary: Verify user email
+      operationId: verifyEmail
+      tags: ["users"]
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: verification_token
+          schema:
+            type: string
+          required: true
+          description: >-
+            Token generated during registration. Must be used within 24 hours
+            of issuance. Tokens are single-use and expire after 24 hours.
+      responses:
+        "200":
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/SuccessResponse.yaml"
+        "400":
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "403":
+          description: Email already verified
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+  
+  /users:
+    get:
+      summary: List of users (admin only)
+      description: >
+        **Admin only.**  
+        Returns a paginated list of all users.
+      operationId: listUsers
+      tags: ["users"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          description: "Bearer {access_token}"
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+            default: 1
+            minimum: 1
+            maximum: 2147483647
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+            minimum: 10
+            maximum: 1000
+      responses:
+        "200":
+          description: List of users fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "./components/schemas/responses/UserInfoResponse.yaml"
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        format: int32
+                        minimum: 0
+                        maximum: 1000
+                      page:
+                        type: integer
+                        format: int32
+                        minimum: 0
+                        maximum: 2147483647
+                      page_size:
+                        type: integer
+                        format: int32
+                        minimum: 10
+                        maximum: 1000
+        "400":
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "401":
+          description: Missing, malformed or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "403":
+          description: Forbidden (not an admin)
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+  
+  /users/{user_id}:
+    put:
+      summary: Update user info
+      operationId: updateUser
+      tags: ["user"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          description: "Bearer {access_token}"
+        - in: path
+          name: user_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas/requests/UpdateUserRequest.yaml"
+        required: true      
+      responses:
+        "200":
+          description: User info updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/UserInfoResponse.yaml"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "401":
+          description: Missing, malformed or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "403":
+          description: Forbidden (not the user or admin)
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
+    delete:
+      summary: Delete user
+      description: >
+        **Admin only.**  
+        Permanently removes the specified user account.
+      operationId: deleteUser
+      tags: ["users"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          description: "Bearer {access_token}"
+        - in: path
+          name: user_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "204":
+          description: User deleted successfully
+        "401":
+          description: Missing, malformed or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "403":
+          description: Forbidden (not an admin)
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+# Todo:
+# Learn how to add 
+#   X-Content-Type-Options
+#   X-Frame-Options
+#   Strict-Transport-Security
+#   X-RateLimit-Limit
+#   X-RateLimit-Remaining
+#   X-RateLimit-Reset

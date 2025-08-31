@@ -1,0 +1,33 @@
+type: object
+properties:
+  username:
+    type: string
+    minLength: 3
+    maxLength: 30
+  email:
+    type: string
+    format: email
+  password:
+    type: string
+    minLength: 8
+  first_name:
+    type: string
+    maxLength: 50
+    description: The user's first name
+  last_name:
+    type: string
+    maxLength: 50
+    description: The user's last name
+  phone:
+    type: string
+    pattern: '^\+?[0-9]{10,15}$'
+    description: The user's phone number (E.164 format)
+  is_active:
+    type: boolean
+    description: Whether the user account is active (admin-only)
+  role:
+    type: string
+    enum: [user, admin]
+    description: The user's role (admin-only)
+required: []
+additionalProperties: false

@@ -1,0 +1,36 @@
+GET http://localhost:3000/
+
+### Get all users
+GET http://localhost:3000/users
+
+### Register new user
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "username": "bbb",
+    "password": "zzz",
+    "email_address": "garciano.eman@gmail.com"
+}
+
+### Update user
+PUT http://localhost:3000/user/1
+Content-Type: application/json
+
+{
+    "username": "kyros_updated",
+    "password": "mikael_updated",
+    "email_address": "garciano_updated@gmail.com"
+}
+
+### Get user
+GET http://localhost:3000/user/20
+
+### Delete user
+DELETE http://localhost:3000/user/3
+
+### Verify user
+GET http://localhost:3000/verify-user/18/105896
+
+### Send email verification
+
