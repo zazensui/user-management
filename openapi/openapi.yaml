@@ -16,6 +16,7 @@ paths:
       summary: Register a new user
       operationId: registerUser
       tags: ["users"]
+      security: []
       requestBody: 
         content: 
           application/json: 
@@ -54,6 +55,7 @@ paths:
       summary: Authenticate user and issue tokens
       operationId: authenticateUser
       tags: ["users"]
+      security: []
       requestBody:
         content:
           application/json:
@@ -216,6 +218,7 @@ paths:
       summary: Initiate password request
       operationId: requestPasswordReset
       tags: ["users"]
+      security: []
       requestBody:
         content:
           application/json:
@@ -265,6 +268,7 @@ paths:
       summary: Complete password reset
       operationId: resetPassword
       tags: ["users"]
+      security: []
       requestBody:
         content:
           application/json:
@@ -353,6 +357,7 @@ paths:
       summary: Verify user email
       operationId: verifyEmail
       tags: ["users"]
+      security: []
       parameters:
         - in: query
           name: user_id
@@ -502,7 +507,7 @@ paths:
     put:
       summary: Update user info
       operationId: updateUser
-      tags: ["user"]
+      tags: ["users"]
       security:
         - bearerAuth: []
       parameters:
