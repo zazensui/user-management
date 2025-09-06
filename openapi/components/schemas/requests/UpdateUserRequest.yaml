@@ -29,5 +29,4 @@ properties:
     type: string
     enum: [user, admin]
     description: The user's role (admin-only)
-required: []
 additionalProperties: false
