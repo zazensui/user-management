@@ -3,7 +3,9 @@ import dotenv from 'dotenv'
 // import crypto from 'crypto'
 // import { sendVerificationEmail } from '../modules/emails/mail_service.js'
 
-import {listUsers as listUsersController} from "./users.controller.js"
+import * as userSchemas from "./users.schema.js"
+import * as userController from "./users.controller.js"
+import * as validation from "../../middleware/validation.js"
 
 
 dotenv.config()
@@ -11,7 +13,8 @@ dotenv.config()
 const router = express.Router()
 router.use(express.json())
 
-router.get('/list', listUsersController)
+
+router.get('/list', validation.validateQuery(userSchemas.listUsersSchema), userController.listUsers)
 
 // router.post('/register', async (req, res) => {
 //     const { username, password, email } = req.body

@@ -2,7 +2,6 @@ import { listUsers as listUsersRepo } from "./users.repo.js";
 
 export const listUsers = async (page, pageSize) => {
   try {
-    // Validate pagination params
     if (page < 1 || pageSize < 10 || pageSize > 1000) {
       return {
         status: 400,
