@@ -1,11 +1,12 @@
-import express from 'express'
-import dotenv from 'dotenv'
+import express from "express"
+import dotenv from "dotenv"
 // import crypto from 'crypto'
 // import { sendVerificationEmail } from '../modules/emails/mail_service.js'
 
 import * as userSchemas from "./users.schema.js"
 import * as userController from "./users.controller.js"
 import * as validation from "../../middleware/validation.js"
+import * as rateLimiter from "../../middleware/rate_limit.js"
 
 
 dotenv.config()
@@ -14,25 +15,15 @@ const router = express.Router()
 router.use(express.json())
 
 
-router.get('/list', validation.validateQuery(userSchemas.listUsersSchema), userController.listUsers)
+router.get('/list', 
+    rateLimiter.adminLimiter, 
+    validation.validateQuery(userSchemas.listUsersSchema), 
+    userController.listUsers)
+//TODO: Authentication & Authorization middleware
 
-// router.post('/register', async (req, res) => {
-//     const { username, password, email } = req.body
-//     try {
-//         const result = await pool.query('INSERT INTO users (username, password, email_address) VALUES ($1, $2, $3) RETURNING *', [username, password, email])
-//         if (result.rows.length === 0) {
-//             return res.status(400).send('User registration failed')
-//         }
-//         const random_token = crypto.randomInt(100000, 999999).toString()
-//         const token_hash = crypto.createHash('sha256').update(random_token).digest('hex')
-//         await pool.query('INSERT INTO email_verifications (user_id, token_hash, expiry, purpose) VALUES ($1, $2, $3, $4)', [result.rows[0].id, token_hash, new Date(Date.now() + 3600000), 'email_verification'])
-//         await sendVerificationEmail(email, result.rows[0].id, username, random_token)
-//         res.status(201).json(result.rows[0]) //DO NOT RETURN THE PASSWORD
-//     } catch (err) {
-//         console.error('Error executing query', err)
-//         res.status(500).send('Internal Server Error')
-//     }
-// })
+router.post('/register',
+    userController.registerUser
+)
 
 // router.put('/:id', async (req, res) => {
 //     const { id } = req.params

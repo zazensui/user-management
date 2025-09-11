@@ -429,7 +429,7 @@ paths:
             format: int32
             default: 1
             minimum: 1
-            maximum: 500
+            maximum: 2147483647
         - in: query
           name: page_size
           schema:
