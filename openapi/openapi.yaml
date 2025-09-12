@@ -1,7 +1,7 @@
-openapi: '3.0.3'
+openapi: "3.0.3"
 info:
   title: User Management
-  version: '1.0'
+  version: "1.0"
 servers:
   - url: http://localhost:3000
 components:
@@ -17,10 +17,10 @@ paths:
       operationId: registerUser
       tags: ["users"]
       security: []
-      requestBody: 
-        content: 
-          application/json: 
-            schema: 
+      requestBody:
+        content:
+          application/json:
+            schema:
               $ref: "./components/schemas/requests/RegisterUserRequest.yaml"
         required: true
       responses:
@@ -48,7 +48,6 @@ paths:
             application/json:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
-
 
   /users/login:
     post:
@@ -100,7 +99,6 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 
-
   /users/refresh_token:
     post:
       summary: Issue new access token using refresh token
@@ -140,7 +138,6 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 
-
   /users/logout:
     post:
       summary: Invalidate the refresh token
@@ -171,11 +168,10 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 
-
   /users/me:
     get:
       summary: Get current user profile
-      operationId: getUser
+      operationId: getCurrentUser
       tags: ["users"]
       security:
         - bearerAuth: []
@@ -203,14 +199,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./components/schemas/responses/ErrorResponse.yaml"        
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
         "500":
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
-
 
   # The server generates a token, stores it in the db then sends an email url with the token already encoded to it.
   /users/request_password_reset:
@@ -260,7 +255,6 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 
-  
   # Upon clicking the password reset link, the front-end should extract the token from the URL then
   # send it along with the email and the new password via the requestBody
   /users/reset_password:
@@ -306,7 +300,6 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 
-
   /users/change_password:
     post:
       summary: Change user password
@@ -351,7 +344,6 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 
-  
   /users/verify_email:
     get:
       summary: Verify user email
@@ -405,7 +397,6 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 
-  
   /users:
     get:
       summary: List of users (admin only)
@@ -502,7 +493,45 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 
-  
+  /users/email:
+    get:
+      summary: Get user info
+      operationId: getUserByEmail
+      tags: ["users"]
+      security: []
+      parameters:
+        - name: email
+          in: query
+          schema:
+            type: string
+            format: email
+          required: true
+      responses:
+        "200":
+          description: User info fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/UserInfoResponse.yaml"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+
   /users/{user_id}:
     put:
       summary: Update user info
@@ -527,7 +556,7 @@ paths:
           application/json:
             schema:
               $ref: "./components/schemas/requests/UpdateUserRequest.yaml"
-        required: true      
+        required: true
       responses:
         "200":
           description: User info updated successfully
@@ -615,7 +644,7 @@ paths:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
 # Todo:
-# Learn how to add 
+# Learn how to add
 #   X-Content-Type-Options
 #   X-Frame-Options
 #   Strict-Transport-Security

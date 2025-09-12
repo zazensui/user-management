@@ -14,16 +14,21 @@ dotenv.config()
 const router = express.Router()
 router.use(express.json())
 
+router.get('/email',
+    userController.findUserByEmail
+)
+
+router.post('/register',
+    validation.validateBody(userSchemas.registerUserSchema),
+    userController.registerUser
+)
 
 router.get('/list', 
     rateLimiter.adminLimiter, 
     validation.validateQuery(userSchemas.listUsersSchema), 
-    userController.listUsers)
-//TODO: Authentication & Authorization middleware
-
-router.post('/register',
-    userController.registerUser
+    userController.listUsers
 )
+//TODO: Authentication & Authorization middleware
 
 // router.put('/:id', async (req, res) => {
 //     const { id } = req.params

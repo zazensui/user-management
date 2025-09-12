@@ -34,6 +34,7 @@ export const validate = (schema, property = "body") => {
   };
 };
 
+
 export const validateQuery = (schema) => validate(schema, "query");
 export const validateBody = (schema) => validate(schema, "body");
 export const validateParams = (schema) => validate(schema, "params");
