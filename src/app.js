@@ -1,15 +1,12 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import {users} from './modules/users/users.routes.js'
+import express from "express";
 
+import { users } from "./modules/users/users.routes.js";
 
-dotenv.config()
+const app = express();
 
-const app = express()
-const port = process.env.PORT || 3000
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use('/users', users)
+app.use("/users", users);
 
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
-})
+export default app;

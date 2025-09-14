@@ -9,6 +9,8 @@ export const validate = (schema, property = "body") => {
   return (req, res, next) => {
     const dataToValidate = req[property];
 
+    console.log("Validating: ", dataToValidate);
+
     const { error, value } = schema.validate(dataToValidate, {
       allowUnknown: false,
       stripUnknown: true,
@@ -16,7 +18,7 @@ export const validate = (schema, property = "body") => {
     });
 
     if (error) {
-      console.log("Validatior error: ", error.details[0]);
+      console.log("Validation error: ", error.details[0]);
       return res.status(400).json({
         success: false,
         message: error.details[0].message,
@@ -27,13 +29,12 @@ export const validate = (schema, property = "body") => {
 
     req.validated = {};
     req.validated[property] = value;
-    
+
     console.log(`Validated ${property}: `, value);
 
     next();
   };
 };
-
 
 export const validateQuery = (schema) => validate(schema, "query");
 export const validateBody = (schema) => validate(schema, "body");

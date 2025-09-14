@@ -1,33 +1,38 @@
-import express from "express"
-import dotenv from "dotenv"
-// import crypto from 'crypto'
-// import { sendVerificationEmail } from '../modules/emails/mail_service.js'
+import express from "express";
+import dotenv from "dotenv";
 
-import * as userSchemas from "./users.schema.js"
-import * as userController from "./users.controller.js"
-import * as validation from "../../middleware/validation.js"
-import * as rateLimiter from "../../middleware/rate_limit.js"
+import * as userSchemas from "./users.schema.js";
+import * as userController from "./users.controller.js";
+import * as validation from "../../middleware/validation.js";
+import * as rateLimiter from "../../middleware/rate_limit.js";
+import * as userValidation from "../users/middleware/users.validation.js"
+
+dotenv.config();
+
+const router = express.Router();
+router.use(express.json());
+
+router.get(
+  "/email",
+  validation.validateQuery(userSchemas.findUserByEmailSchema),
+  userController.findUserByEmail
+);
+
+router.post(
+  "/register",
+  validation.validateBody(userSchemas.registerUserSchema),
+  userValidation.checkEmailExists,
+  userController.registerUser
+);
 
 
-dotenv.config()
 
-const router = express.Router()
-router.use(express.json())
-
-router.get('/email',
-    userController.findUserByEmail
-)
-
-router.post('/register',
-    validation.validateBody(userSchemas.registerUserSchema),
-    userController.registerUser
-)
-
-router.get('/list', 
-    rateLimiter.adminLimiter, 
-    validation.validateQuery(userSchemas.listUsersSchema), 
-    userController.listUsers
-)
+router.get(
+  "/list",
+  rateLimiter.adminLimiter,
+  validation.validateQuery(userSchemas.listUsersSchema),
+  userController.listUsers
+);
 //TODO: Authentication & Authorization middleware
 
 // router.put('/:id', async (req, res) => {
@@ -101,4 +106,4 @@ router.get('/list',
 //     }
 // })
 
-export {router as users}
+export { router as users };

@@ -1,22 +1,26 @@
+import crypto from "crypto";
+
 import * as usersRepository from "./users.repo.js";
+import { sendVerificationEmail } from "../emails/mail_service.js";
+import { withTransaction } from "../../db/transaction.js";
 
 export const findUserByEmail = async (email) => {
   try {
     const result = await usersRepository.findUserByEmail(email);
-    if (result.rows.length === 0) {
+    if (!result) {
       return {
         status: 404,
-        message: "User not found"
-      }
+        message: "User not found",
+      };
     }
     return {
       status: 200,
       message: "User info fetched successfully",
       data: {
-        data: result.rows,
-        meta: {}
+        data: result,
+        meta: {},
       },
-    }
+    };
   } catch (err) {
     console.error("Error finding user by email", err);
     return {
@@ -28,38 +32,63 @@ export const findUserByEmail = async (email) => {
 
 export const registerUser = async (username, password, email) => {
   try {
-    const result = await usersRepository.registerUser(
-      username,
-      password,
-      email
-    );
-    if (result.rows.length === 0) {
-      return res.status(400).send("User registration failed");
-    }
+    //Generate the random token and the hash for email verification
     const random_token = crypto.randomInt(100000, 999999).toString();
     const token_hash = crypto
       .createHash("sha256")
       .update(random_token)
       .digest("hex");
-    await pool.query(
-      "INSERT INTO email_verifications (user_id, token_hash, expiry, purpose) VALUES ($1, $2, $3, $4)",
-      [
-        result.rows[0].id,
+    const token_expiry = new Date(Date.now() + 3600000);
+
+    //Here we are committing 2 db queries within one transaction so if either one fails, the entire transaction is reverted
+    const result = await withTransaction(async (client) => {
+      const register_result = await usersRepository.registerUser(
+        username,
+        password,
+        email,
+        client
+      );
+
+      const newUser = register_result.rows[0];
+
+      await usersRepository.sendVerificationEmail(
+        newUser.id,
         token_hash,
-        new Date(Date.now() + 3600000),
+        token_expiry,
         "email_verification",
-      ]
-    );
-    await sendVerificationEmail(
-      email,
-      result.rows[0].id,
-      username,
-      random_token
-    );
-    res.status(201).json(result.rows[0]); //DO NOT RETURN THE PASSWORD
+        client
+      );
+      console.log(newUser);
+      return { user: newUser };
+    });
+
+    try {
+      await sendVerificationEmail(
+        result.user.email_address,
+        result.user.id,
+        result.user.username,
+        random_token
+      );
+    } catch (error) {
+      console.error("Email verification sending failed: ", error);
+    }
+
+    return {
+      status: 201,
+      message: "Registered the new user successfully",
+      data: {
+        user_id: result.user.id,
+        email: result.user.email_address,
+        username: result.user.username,
+      },
+      meta: {},
+    }; //DO NOT RETURN THE PASSWORD
   } catch (err) {
-    console.error("Error executing query", err);
-    res.status(500).send("Internal Server Error");
+    console.error("Error registering user", err);
+    return {
+      status: 500,
+      message: "Internal server error",
+    };
   }
 };
 

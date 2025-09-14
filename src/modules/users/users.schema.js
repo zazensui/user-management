@@ -1,25 +1,52 @@
 import Joi from "joi";
 
-export const registerUserSchema = Joi.object({
-  username: Joi.string().alphanum().min(4).max(30).lowercase().required().messages({
+export const usernameSchema = Joi.string()
+  .alphanum()
+  .min(4)
+  .max(30)
+  .lowercase()
+  .required()
+  .messages({
     "string.base": "Username must only contain alphanumeric characters",
     "string.min": "Username must contain at least 4 characters",
     "string.max": "Username must not contain more than 30 characters",
     "string.required": "Username is required",
-  }),
-  email: Joi.string().email().required().lowercase().trim().messages({
-    "string.base": "Email address must represent a valid email address",
+  });
+
+export const emailSchema = Joi.string()
+  .email()
+  .required()
+  .lowercase()
+  .trim()
+  .messages({
+    "string.email": "Email address must represent a valid email address",
     "string.required": "Email address is required",
-  }),
-  password: Joi.string().pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])')).min(8).max(128).required().messages({
-    "string.pattern.base": "Password must contain uppercase, lowercase, number, and special character",
+  });
+
+export const passwordSchema = Joi.string()
+  .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])"))
+  .min(8)
+  .max(128)
+  .required()
+  .messages({
+    "string.pattern.base":
+      "Password must contain uppercase, lowercase, number, and special character",
     "string.min": "Password must contain at least 4 characters",
     "string.max": "Password must not contain more than 30 characters",
     "string.required": "Password is required",
+  });
+
+export const findUserByEmailSchema = Joi.object({
+  email: emailSchema,
+});
+
+export const registerUserSchema = Joi.object({
+  username: usernameSchema,
+  email: emailSchema,
+  password: passwordSchema,
+  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
+    "any.only": "Password must match",
   }),
-  confirmPassword: Joi.string().valid(Joi.ref('password')).required().messages({
-    "any.only": "Password must match"
-  })
 });
 
 export const listUsersSchema = Joi.object({

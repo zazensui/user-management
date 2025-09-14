@@ -10,6 +10,9 @@ properties:
   password:
     type: string
     minLength: 8
+  confirmPassword:
+    type: string
+    minLength: 8
   is_active:
     type: boolean
     description: Whether the user account is active (admin-only)
