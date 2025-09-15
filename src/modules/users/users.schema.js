@@ -10,17 +10,7 @@ export const usernameSchema = Joi.string()
     "string.base": "Username must only contain alphanumeric characters",
     "string.min": "Username must contain at least 4 characters",
     "string.max": "Username must not contain more than 30 characters",
-    "string.required": "Username is required",
-  });
-
-export const emailSchema = Joi.string()
-  .email()
-  .required()
-  .lowercase()
-  .trim()
-  .messages({
-    "string.email": "Email address must represent a valid email address",
-    "string.required": "Email address is required",
+    "any.required": "Username is required",
   });
 
 export const passwordSchema = Joi.string()
@@ -33,11 +23,14 @@ export const passwordSchema = Joi.string()
       "Password must contain uppercase, lowercase, number, and special character",
     "string.min": "Password must contain at least 4 characters",
     "string.max": "Password must not contain more than 30 characters",
-    "string.required": "Password is required",
+    "any.required": "Password is required",
   });
 
-export const findUserByEmailSchema = Joi.object({
-  email: emailSchema,
+export const emailSchema = Joi.object({
+  email: Joi.string().email().required().lowercase().trim().messages({
+    "string.email": "Email address must represent a valid email address",
+    "any.required": "Email address is required",
+  }),
 });
 
 export const registerUserSchema = Joi.object({
@@ -46,6 +39,17 @@ export const registerUserSchema = Joi.object({
   password: passwordSchema,
   confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
     "any.only": "Password must match",
+  }),
+});
+
+export const verifyEmailSchema = Joi.object({
+  user_id: Joi.number().required().messages({
+    "number.base": "User id must be a number",
+    "any.required": "User id is required",
+  }),
+  verification_token: Joi.number().required().messages({
+    "number.base": "Verification token must be a number",
+    "any.required": "Verification token is required",
   }),
 });
 

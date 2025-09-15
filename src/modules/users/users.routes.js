@@ -14,17 +14,29 @@ router.use(express.json());
 
 router.get(
   "/email",
-  validation.validateQuery(userSchemas.findUserByEmailSchema),
+  validation.validateQuery(userSchemas.emailSchema),
   userController.findUserByEmail
 );
 
 router.post(
   "/register",
+  rateLimiter.registrationLimiter,
   validation.validateBody(userSchemas.registerUserSchema),
   userValidation.checkEmailExists,
   userController.registerUser
 );
 
+router.get(
+  "/verify_email",
+  validation.validateQuery(userSchemas.verifyEmailSchema),
+  userController.verifyUser
+)
+
+router.post(
+  "/resend_verification",
+  validation.validateQuery(userSchemas.emailSchema),
+  userController.resendVerificationEmail
+)
 
 
 router.get(
@@ -86,8 +98,6 @@ router.get(
 //             const token_hash = crypto.createHash('sha256').update(token).digest('hex')
 //             if (email_verification.rows.length === 0) {
 //                 res.status(404).send('Email verification not found')
-//             } else if (email_verification.rows[0].purpose !== 'email_verification') {
-//                 res.status(400).send('Token purpose is not for email verification')
 //             } else if (email_verification.rows[0].expiry < new Date()) {
 //                 await pool.query('DELETE FROM email_verifications where user_id = $1', [id])
 //                 res.status(400).send('Token expired')

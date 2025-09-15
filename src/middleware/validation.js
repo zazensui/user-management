@@ -9,7 +9,7 @@ export const validate = (schema, property = "body") => {
   return (req, res, next) => {
     const dataToValidate = req[property];
 
-    console.log("Validating: ", dataToValidate);
+    // console.log("Validating: ", dataToValidate);
 
     const { error, value } = schema.validate(dataToValidate, {
       allowUnknown: false,
