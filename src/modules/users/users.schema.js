@@ -26,12 +26,20 @@ export const passwordSchema = Joi.string()
     "any.required": "Password is required",
   });
 
-export const emailSchema = Joi.object({
-  email: Joi.string().email().required().lowercase().trim().messages({
+export const emailSchema = Joi.string()
+  .email()
+  .required()
+  .lowercase()
+  .trim()
+  .messages({
     "string.email": "Email address must represent a valid email address",
     "any.required": "Email address is required",
-  }),
-});
+  });
+
+
+export const findUserByEmail = Joi.object({
+  email: emailSchema
+})
 
 export const registerUserSchema = Joi.object({
   username: usernameSchema,
@@ -52,6 +60,10 @@ export const verifyEmailSchema = Joi.object({
     "any.required": "Verification token is required",
   }),
 });
+
+export const resendVerificationEmail = Joi.object({
+  email: emailSchema
+})
 
 export const listUsersSchema = Joi.object({
   page: Joi.number().integer().min(1).max(2147483647).default(1).messages({

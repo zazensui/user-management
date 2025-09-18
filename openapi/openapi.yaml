@@ -396,7 +396,51 @@ paths:
             application/json:
               schema:
                 $ref: "./components/schemas/responses/ErrorResponse.yaml"
-
+  /users/resend_verification_email:
+    post: 
+      summary: Resend verification email
+      operationId: resendVerification
+      tags: ["users"]
+      security: []
+      parameters: 
+        - in:  query
+          name: email
+          schema:
+            type: string
+            format: email
+          required: true
+      responses:
+        "200":
+          description: Verification code sent
+          content: 
+            application/json:
+              schema: 
+                $ref: components/schemas/responses/SuccessResponse.yaml
+        "400":
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "403":
+          description: Email is already verified
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas/responses/ErrorResponse.yaml"
+      
   /users:
     get:
       summary: List of users (admin only)

@@ -196,8 +196,8 @@ export const resendVerificationEmail = async (email) => {
     }
 
     return {
-      status: 201,
-      message: "Token for email verification sent"
+      status: 200,
+      message: `Verification code sent to ${email}`
     }
   } catch (error) {
     console.error("Error in verifying user email", error);

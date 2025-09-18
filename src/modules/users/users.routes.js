@@ -14,7 +14,7 @@ router.use(express.json());
 
 router.get(
   "/email",
-  validation.validateQuery(userSchemas.emailSchema),
+  validation.validateQuery(userSchemas.findUserByEmail),
   userController.findUserByEmail
 );
 
@@ -34,7 +34,7 @@ router.get(
 
 router.post(
   "/resend_verification",
-  validation.validateQuery(userSchemas.emailSchema),
+  validation.validateQuery(userSchemas.findUserByEmail),
   userController.resendVerificationEmail
 )
 
